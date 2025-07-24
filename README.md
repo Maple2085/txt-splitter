@@ -1,8 +1,7 @@
 ## 这里是我的GitHub仓库，想直接访问我的txt-splitter吗？
 
-[➡️ 点击这里立即体验 txt-splitter ⬅️](https://maple2085.github.io/txt-splitter/){: style="background-color: #2ea44f; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none;"}
+[➡️ 点击这里立即体验 txt-splitter ⬅️](https://maple2085.github.io/txt-splitter/)
 
----
 ---
 
 ## 项目概述
