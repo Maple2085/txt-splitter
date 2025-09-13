@@ -1,6 +1,5 @@
-## 这里是我的GitHub仓库，想直接访问我的txt-splitter吗？
-
-[➡️ 点击这里立即体验 txt-splitter ⬅️](https://maple2085.github.io/txt-splitter/)
+# 访问在线版↓↓↓
+# [➡️ 点击这里立即体验 txt-splitter Web ⬅️](https://maple2085.github.io/txt-splitter/)
 
 ---
 
