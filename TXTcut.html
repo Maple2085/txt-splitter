@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本分割工具</title>
+    <style>
+        :root {
+            --primary-blue: #4361ee;
+            --secondary-red: #f72585;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.96);
+            --success-green: #06d6a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e293b, #334155, #1e293b);
+            background-attachment: fixed;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--glass-bg);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .description {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .file-emoji { font-size: 2.5rem; }
+        .file-details { flex-grow: 1; }
+        .file-name { font-weight: 700; color: var(--primary-blue); font-size: 1.1rem; word-break: break-all; margin-bottom: 4px; }
+        .file-size-display { font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-blue);
+            background: #eff6ff;
+        }
+
+        .upload-icon { font-size: 3rem; margin-bottom: 10px; }
+
+        .mode-switch {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+        }
+
+        label { display: block; margin-bottom: 10px; font-weight: 700; color: #1e293b; }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+        input[type="number"]:focus { border-color: var(--primary-blue); }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(67, 97, 238, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover { transform: translateY(-2px); background: #3a0ca3; }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .status-container { min-height: 50px; margin: 10px 0; }
+        .status { text-align: center; padding: 12px; border-radius: 10px; font-weight: 600; display: none; }
+        .status.show { display: block; }
+        .status.success { background: #dcfce7; color: #166534; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+
+        .result-section { margin-top: 30px; }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .result-title { font-size: 1.25rem; color: #1e293b; font-weight: 800; }
+        .download-tip { font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; background: #eff6ff; padding: 4px 10px; border-radius: 6px; }
+
+        .file-list {
+            list-style: none;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .file-item:last-child { border-bottom: none; }
+        .file-item:hover { background: #f8fafc; padding-left: 28px; }
+
+        .file-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .file-link { color: #1e293b; text-decoration: none; font-weight: 600; flex-grow: 1; transition: color 0.2s; }
+        .file-item:hover .file-link { color: var(--primary-blue); text-decoration: underline; }
+
+        .action-btns { display: flex; gap: 8px; align-items: center; }
+        
+        .mini-btn {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-btn { background: #f1f5f9; color: #475569; }
+        .copy-btn:hover { background: #e2e8f0; color: var(--primary-blue); transform: scale(1.05); }
+
+        .preview-btn { background: #f0f9ff; color: #0284c7; }
+        .preview-btn:hover { background: #0284c7; color: white; transform: scale(1.05); }
+
+        .file-size-tag {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .zip-btn { background: var(--secondary-red); box-shadow: 0 10px 15px -3px rgba(247, 37, 133, 0.3); }
+        .zip-btn:hover { background: #e01e74; }
+
+        .loader {
+            width: 18px; height: 18px;
+            border: 2px solid currentColor;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 640px) {
+            .container { padding: 20px; }
+            .result-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>文本分割工具 v2.0</h1>
+            <p class="description">纯本地处理，快速完成您的文本文件分割</p>
+        </header>
+
+        <div class="upload-area" id="upload-area" role="button" tabindex="0">
+            <div class="upload-icon">📂</div>
+            <h2>拖放或点击上传</h2>
+            <p style="color: #64748b; margin-top: 8px;">支持 .txt 文本文件</p>
+            <input type="file" id="file-input" style="display: none;" accept=".txt">
+        </div>
+
+        <div id="file-info" class="file-info" style="display: none;">
+            <div class="file-emoji">📄</div>
+            <div class="file-details">
+                <div class="file-name" id="file-name-display"></div>
+                <div class="file-size-display" id="file-size-display"></div>
+            </div>
+        </div>
+
+        <div class="mode-switch">
+            <button id="mode-parts" class="mode-btn active">按份数分割</button>
+            <button id="mode-size" class="mode-btn">按大小分割</button>
+        </div>
+
+        <div class="input-group" id="parts-group">
+            <label>分割成多少份？</label>
+            <input type="number" id="parts-input" min="1" value="3">
+        </div>
+
+        <div class="input-group" id="size-group" style="display: none;">
+            <label>每份文件大小 (MB)</label>
+            <input type="number" id="size-input" min="0.1" step="0.1" value="2">
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <button id="split-btn" class="btn">立即开始分割</button>
+            <div id="estimate" style="color:#64748b; font-weight:600; margin-left:6px;"> </div>
+        </div>
+
+        <div id="split-progress" style="display:none; height:8px; background:#f1f5f9; border-radius:8px; overflow:hidden;">
+            <div id="split-progress-bar" style="height:100%; width:0%; background:var(--primary-blue); transition: width 0.3s;"></div>
+        </div>
+
+        <div class="status-container">
+            <div id="status" class="status"></div>
+        </div>
+
+        <div class="result-section" id="result-area" style="display: none;">
+            <div class="result-header">
+                <h3 class="result-title">分割结果预览</h3>
+                <span class="download-tip">支持单击对应文件名称，可以单独下载所点的文件</span>
+            </div>
+
+            <ul class="file-list" id="file-list"></ul>
+            <button id="zip-btn" class="btn zip-btn">打包下载全部 (.ZIP)</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let splitFiles = [];
+        let currentMode = 'parts';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-input');
+
+            document.getElementById('mode-parts').onclick = () => toggleMode('parts');
+            document.getElementById('mode-size').onclick = () => toggleMode('size');
+
+            uploadArea.onclick = () => fileInput.click();
+            uploadArea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+            });
+
+            fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+            uploadArea.ondragover = (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); };
+            uploadArea.ondragleave = () => { uploadArea.classList.remove('dragover'); };
+            uploadArea.ondrop = (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            };
+
+            document.getElementById('split-btn').onclick = processSplit;
+            document.getElementById('zip-btn').onclick = downloadZip;
+
+            document.getElementById('parts-input').addEventListener('input', updateEstimate);
+            document.getElementById('size-input').addEventListener('input', updateEstimate);
+        });
+
+        function toggleMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-parts').classList.toggle('active', mode === 'parts');
+            document.getElementById('mode-size').classList.toggle('active', mode === 'size');
+            document.getElementById('parts-group').style.display = mode === 'parts' ? 'block' : 'none';
+            document.getElementById('size-group').style.display = mode === 'size' ? 'block' : 'none';
+            updateEstimate();
+        }
+
+        function handleFile(file) {
+            if (!file || !file.name.endsWith('.txt')) {
+                showMsg("请先上传 .txt 文本文件", 'error');
+                return;
+            }
+            selectedFile = file;
+            document.getElementById('file-info').style.display = 'flex';
+            document.getElementById('file-name-display').textContent = file.name;
+            document.getElementById('file-size-display').textContent = formatMB(file.size);
+            showMsg('文件已就绪', 'success');
+            updateEstimate();
+        }
+
+        function updateEstimate() {
+            const est = document.getElementById('estimate');
+            if (!selectedFile) { est.textContent = ''; return; }
+            let partsCount = 0;
+            if (currentMode === 'parts') {
+                partsCount = parseInt(document.getElementById('parts-input').value) || 1;
+            } else {
+                const sizeMB = parseFloat(document.getElementById('size-input').value) || 1;
+                partsCount = Math.max(1, Math.ceil((selectedFile.size / (1024 * 1024)) / sizeMB));
+            }
+            const avg = selectedFile.size / partsCount;
+            est.textContent = `预估 ${partsCount} 份 · 每份约 ${formatMB(Math.ceil(avg))}`;
+        }
+
+        async function processSplit() {
+            if (!selectedFile) return showMsg("请选择文件", 'error');
+
+            const splitBtn = document.getElementById('split-btn');
+            splitBtn.disabled = true;
+            splitBtn.innerHTML = `<span class="loader"></span> 处理中...`;
+
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                const text = e.target.result;
+                let partsCount = (currentMode === 'parts') 
+                    ? Math.max(1, parseInt(document.getElementById('parts-input').value) || 1)
+                    : Math.max(1, Math.ceil((selectedFile.size / (1024 * 1024)) / (parseFloat(document.getElementById('size-input').value) || 1)));
+
+                const chunkSize = Math.ceil(text.length / partsCount);
+                splitFiles = [];
+                const listEl = document.getElementById('file-list');
+                listEl.innerHTML = '';
+                document.getElementById('result-area').style.display = 'block';
+                document.getElementById('split-progress').style.display = 'block';
+
+                for (let i = 0; i < partsCount; i++) {
+                    const content = text.substring(i * chunkSize, (i + 1) * chunkSize);
+                    if (!content) continue;
+
+                    const name = `P${i + 1}_${selectedFile.name.replace(/\.txt$/i, '')}.txt`;
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    splitFiles.push({ name, blob });
+
+                    const li = document.createElement('li');
+                    li.className = 'file-item';
+                    li.innerHTML = `
+                        <div class="file-main-row">
+                            <span class="file-link">${name}</span>
+                            <div class="action-btns">
+                                <button class="mini-btn copy-btn" data-idx="${i}">📋 复制这个文件名</button>
+                                <button class="mini-btn preview-btn" data-idx="${i}">🔍 预览一点点内容</button>
+                                <span class="file-size-tag">${formatMB(blob.size)}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    li.onclick = () => saveBlob(blob, name);
+                    li.querySelector('.copy-btn').onclick = (ev) => { ev.stopPropagation(); copyName(name); };
+                    li.querySelector('.preview-btn').onclick = (ev) => { ev.stopPropagation(); previewText(content.substring(0, 500)); };
+
+                    listEl.appendChild(li);
+                    document.getElementById('split-progress-bar').style.width = Math.round(((i + 1) / partsCount) * 100) + '%';
+                    
+                    // 为了让 UI 有机会更新进度条，即使很快也保留一个极小的微任务间隙
+                    if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
+                }
+
+                splitBtn.disabled = false;
+                splitBtn.textContent = "立即开始分割";
+                document.getElementById('split-progress').style.display = 'none';
+
+                showMsg(`分割完成！共生成 ${splitFiles.length} 个文件`, 'success');
+            };
+            reader.readAsText(selectedFile);
+        }
+
+        function downloadZip() {
+            if (splitFiles.length === 0) return showMsg('请先分割文件', 'error');
+            const jszipUrl = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            const fileSaverUrl = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
+
+            Promise.all([
+                loadScript(jszipUrl),
+                loadScript(fileSaverUrl)
+            ]).then(() => {
+                const zip = new JSZip();
+                splitFiles.forEach(f => zip.file(f.name, f.blob));
+                zip.generateAsync({ type: 'blob' }).then(content => {
+                    saveAs(content, `${selectedFile.name.replace('.txt','')}_分割结果.zip`);
+                    showMsg("打包成功，开始下载", 'success');
+                });
+            }).catch(() => showMsg('资源加载失败', 'error'));
+        }
+
+        function saveBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 200);
+        }
+
+        function copyName(name) {
+            const temp = document.createElement('textarea');
+            temp.value = name;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showMsg('文件名已复制', 'success');
+        }
+
+        function previewText(text) {
+            const previewWin = window.open("", "Preview", "width=600,height=400");
+            previewWin.document.write(`<pre style="white-space: pre-wrap; word-wrap: break-word; font-family: sans-serif; padding: 20px;">${text}...</pre>`);
+        }
+
+        function showMsg(m, type) {
+            const s = document.getElementById('status');
+            s.textContent = m; s.className = `status show ${type}`;
+            setTimeout(() => s.classList.remove('show'), 3000);
+        }
+
+        function formatMB(bytes) { 
+            return bytes < 1024 * 1024 ? (bytes / 1024).toFixed(2) + ' KB' : (bytes / (1024 * 1024)).toFixed(2) + ' MB'; 
+        }
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector(`script[src="${src}"]`)) return resolve();
+                const s = document.createElement('script'); s.src = src;
+                s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+    </script>
+</body>
+</html>
