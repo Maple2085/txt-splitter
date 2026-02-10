@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,7 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
             color: #333;
@@ -23,7 +24,7 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .container {
             width: 100%;
             max-width: 800px;
@@ -33,26 +34,26 @@
             overflow: hidden;
             padding: 30px;
         }
-        
+
         header {
             text-align: center;
             margin-bottom: 25px;
             position: relative;
         }
-        
+
         h1 {
             color: #1a2a6c;
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         .description {
             color: #555;
             font-size: 1.1rem;
             margin-bottom: 20px;
         }
-        
+
         .lang-switch {
             position: absolute;
             top: 0;
@@ -60,7 +61,7 @@
             display: flex;
             gap: 10px;
         }
-        
+
         .lang-btn {
             background: #1a2a6c;
             color: white;
@@ -71,12 +72,12 @@
             font-weight: 600;
             transition: all 0.3s;
         }
-        
+
         .lang-btn.active {
             background: #ff6b6b;
             transform: scale(1.05);
         }
-        
+
         .file-info {
             display: flex;
             align-items: center;
@@ -88,26 +89,26 @@
             border-radius: 10px;
             font-size: 1.1rem;
         }
-        
+
         .file-emoji {
             font-size: 2.5rem;
         }
-        
+
         .file-details {
             text-align: center;
         }
-        
+
         .file-name {
             font-weight: bold;
             color: #b21f1f;
             word-break: break-all;
         }
-        
+
         .file-size {
             font-size: 0.9rem;
             color: #555;
         }
-        
+
         .upload-area {
             border: 3px dashed #1a2a6c;
             border-radius: 15px;
@@ -118,28 +119,29 @@
             background: rgba(26, 42, 108, 0.05);
             cursor: pointer;
         }
-        
-        .upload-area:hover, .upload-area.dragover {
+
+        .upload-area:hover,
+        .upload-area.dragover {
             background: rgba(26, 42, 108, 0.1);
             transform: translateY(-5px);
         }
-        
+
         .upload-icon {
             font-size: 4rem;
             color: #1a2a6c;
             margin-bottom: 15px;
         }
-        
+
         .file-input {
             display: none;
         }
-        
+
         .mode-switch {
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
         }
-        
+
         .mode-btn {
             flex: 1;
             padding: 12px;
@@ -151,27 +153,27 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
+
         .mode-btn.active {
             background: #1a2a6c;
             color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
+
         .input-group {
             margin-bottom: 25px;
             padding: 15px;
             background: rgba(26, 42, 108, 0.05);
             border-radius: 10px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #1a2a6c;
         }
-        
+
         input[type="number"] {
             width: 100%;
             padding: 12px 15px;
@@ -179,12 +181,12 @@
             border-radius: 10px;
             font-size: 1.1rem;
         }
-        
+
         .disabled {
             opacity: 0.5;
             pointer-events: none;
         }
-        
+
         .btn {
             display: block;
             width: 100%;
@@ -198,24 +200,24 @@
             cursor: pointer;
             transition: all 0.3s;
             margin: 20px 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
+
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
-        
+
         .btn:active {
             transform: translateY(1px);
         }
-        
+
         /* 状态提示位置优化 */
         .status-container {
             margin: 15px 0;
             min-height: 60px;
         }
-        
+
         .status {
             text-align: center;
             padding: 15px;
@@ -227,30 +229,30 @@
             height: 0;
             overflow: hidden;
         }
-        
+
         .status.show {
             opacity: 1;
             transform: translateY(0);
             height: auto;
             margin: 10px 0;
         }
-        
+
         .status.success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-        
+
         .status.error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        
+
         .result-section {
             margin-top: 20px;
         }
-        
+
         .result-title {
             font-size: 1.4rem;
             color: #1a2a6c;
@@ -258,7 +260,7 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #1a2a6c;
         }
-        
+
         .file-list {
             list-style: none;
             margin-bottom: 25px;
@@ -268,7 +270,7 @@
             border-radius: 10px;
             padding: 15px;
         }
-        
+
         .file-item {
             display: flex;
             justify-content: space-between;
@@ -279,12 +281,12 @@
             border-radius: 8px;
             transition: all 0.3s;
         }
-        
+
         .file-item:hover {
             background: rgba(26, 42, 108, 0.1);
             transform: translateX(5px);
         }
-        
+
         .file-link {
             color: #1a2a6c;
             text-decoration: none;
@@ -292,11 +294,11 @@
             flex-grow: 1;
             cursor: pointer;
         }
-        
+
         .file-link:hover {
             text-decoration: underline;
         }
-        
+
         .file-size {
             color: #666;
             font-size: 0.9rem;
@@ -304,7 +306,7 @@
             min-width: 80px;
             text-align: right;
         }
-        
+
         .tip {
             background: #ffeb3b;
             padding: 15px;
@@ -316,55 +318,136 @@
             text-align: center;
             font-weight: bold;
         }
-        
+
         .zip-btn {
             background: linear-gradient(135deg, #4CAF50, #2E7D32);
         }
-        
+
         .size-input-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         .size-input-container input {
             flex: 1;
         }
-        
+
         .size-input-container span {
             font-weight: bold;
             color: #1a2a6c;
         }
-        
+
         .info-text {
             color: #666;
             font-size: 0.9rem;
             margin-top: 8px;
             font-style: italic;
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
             }
-            
+
             h1 {
                 font-size: 2rem;
             }
-            
+
             .lang-switch {
                 position: static;
                 justify-content: center;
                 margin-top: 15px;
             }
-            
+
             .mode-switch {
                 flex-direction: column;
                 gap: 10px;
             }
         }
+
+        /* 新版发布弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: modalFadeIn 0.4s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content h2 {
+            color: #1a2a6c;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .modal-content p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 15px;
+            flex-direction: column;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.3s;
+        }
+
+        .upgrade-btn:hover {
+            transform: scale(1.03);
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -375,14 +458,14 @@
                 <button id="lang-en" class="lang-btn">English</button>
             </div>
         </header>
-        
+
         <div class="upload-area" id="upload-area">
             <div class="upload-icon">📁</div>
             <h2 id="upload-text">拖放文件到此处</h2>
             <p id="upload-subtext">或点击选择文本文件 (.txt)</p>
             <input type="file" id="file-input" class="file-input" accept=".txt">
         </div>
-        
+
         <div id="file-info" class="file-info" style="display: none;">
             <div class="file-emoji">📄</div>
             <div class="file-details">
@@ -390,17 +473,17 @@
                 <div class="file-size" id="file-size-display"></div>
             </div>
         </div>
-        
+
         <div class="mode-switch">
             <button id="mode-parts" class="mode-btn active">按份数分割</button>
             <button id="mode-size" class="mode-btn">按大小分割</button>
         </div>
-        
+
         <div class="input-group" id="parts-group">
             <label id="parts-label">分割份数:</label>
             <input type="number" id="parts-input" min="1" value="3">
         </div>
-        
+
         <div class="input-group" id="size-group" style="display: none;">
             <label id="size-label">每份最大大小:</label>
             <div class="size-input-container">
@@ -409,25 +492,25 @@
             </div>
             <p class="info-text" id="size-info">系统将自动计算所需分割份数</p>
         </div>
-        
+
         <button id="split-btn" class="btn">开始分割文本</button>
-        
+
         <!-- 状态提示位置优化（放在按钮和结果之间） -->
         <div class="status-container">
             <div id="status" class="status"></div>
         </div>
-        
+
         <div class="result-section">
             <h3 class="result-title" id="result-title">生成的文件:</h3>
-            
+
             <div class="tip" id="tip">
                 一键打包成zip保存↓↓↓
             </div>
-            
+
             <ul class="file-list" id="file-list">
                 <!-- 文件列表将动态生成在这里 -->
             </ul>
-            
+
             <button id="zip-btn" class="btn zip-btn">点击保存分割后的文件.zip整合</button>
         </div>
     </div>
@@ -488,40 +571,40 @@
             // 语言切换
             document.getElementById('lang-zh').addEventListener('click', () => switchLanguage('zh'));
             document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
-            
+
             // 模式切换
             document.getElementById('mode-parts').addEventListener('click', () => switchMode('parts'));
             document.getElementById('mode-size').addEventListener('click', () => switchMode('size'));
-            
+
             // 文件上传处理
             const uploadArea = document.getElementById('upload-area');
             const fileInput = document.getElementById('file-input');
-            
+
             uploadArea.addEventListener('click', () => fileInput.click());
             fileInput.addEventListener('change', handleFileSelect);
-            
+
             // 拖放功能
             uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadArea.classList.add('dragover');
             });
-            
+
             uploadArea.addEventListener('dragleave', () => {
                 uploadArea.classList.remove('dragover');
             });
-            
+
             uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
-                
+
                 if (e.dataTransfer.files.length) {
                     handleFile(e.dataTransfer.files[0]);
                 }
             });
-            
+
             // 分割按钮
             document.getElementById('split-btn').addEventListener('click', splitText);
-            
+
             // 打包下载按钮
             document.getElementById('zip-btn').addEventListener('click', saveAsZip);
         });
@@ -539,25 +622,25 @@
                 showStatus(LANGUAGES[currentLang].noFileError, 'error');
                 return;
             }
-            
+
             selectedFile = file;
-            
+
             // 显示文件信息
             document.getElementById('file-info').style.display = 'flex';
             document.getElementById('file-name-display').textContent = file.name;
             document.getElementById('file-size-display').textContent = formatFileSize(file.size);
-            
+
             showStatus(`${currentLang === 'zh' ? '已选择文件:' : 'Selected file:'} <span class="file-name">${file.name}</span>`, 'success');
         }
 
         // 切换模式
         function switchMode(mode) {
             currentMode = mode;
-            
+
             // 更新按钮状态
             document.getElementById('mode-parts').classList.toggle('active', mode === 'parts');
             document.getElementById('mode-size').classList.toggle('active', mode === 'size');
-            
+
             // 显示/隐藏对应的输入区域
             document.getElementById('parts-group').style.display = mode === 'parts' ? 'block' : 'none';
             document.getElementById('size-group').style.display = mode === 'size' ? 'block' : 'none';
@@ -570,14 +653,14 @@
                 showStatus(LANGUAGES[currentLang].noFileError, 'error');
                 return;
             }
-            
+
             let parts = 0;
             let partSizeMB = 0;
-            
+
             if (currentMode === 'parts') {
                 // 按份数分割
                 parts = parseInt(document.getElementById('parts-input').value);
-                
+
                 if (isNaN(parts) || parts < 1) {
                     showStatus(LANGUAGES[currentLang].invalidParts, 'error');
                     return;
@@ -585,48 +668,48 @@
             } else {
                 // 按大小分割
                 partSizeMB = parseFloat(document.getElementById('size-input').value);
-                
+
                 if (isNaN(partSizeMB) || partSizeMB < 0.1) {
                     showStatus(LANGUAGES[currentLang].invalidSize, 'error');
                     return;
                 }
-                
+
                 // 计算需要的份数（向上取整）
                 const fileSizeMB = selectedFile.size / (1024 * 1024);
                 parts = Math.ceil(fileSizeMB / partSizeMB);
             }
-            
+
             const reader = new FileReader();
-            
-            reader.onload = function(e) {
+
+            reader.onload = function (e) {
                 try {
                     const text = e.target.result;
                     const totalLength = text.length;
-                    
+
                     // 计算每份的字符数
                     const chunkSize = Math.ceil(totalLength / parts);
-                    
+
                     splitFiles = [];
                     const fileList = document.getElementById('file-list');
                     fileList.innerHTML = '';
-                    
+
                     const baseName = selectedFile.name.replace('.txt', '');
-                    
+
                     for (let i = 0; i < parts; i++) {
                         const start = i * chunkSize;
                         const end = Math.min(start + chunkSize, totalLength);
                         const content = text.substring(start, end);
-                        
-                        const fileName = `p${i+1}_${baseName}.txt`;
+
+                        const fileName = `p${i + 1}_${baseName}.txt`;
                         const blob = new Blob([content], { type: 'text/plain' });
                         const size = formatFileSize(blob.size);
-                        
+
                         splitFiles.push({
                             name: fileName,
                             blob: blob,
                             size: size
                         });
-                        
+
                         // 添加到文件列表
                         const listItem = document.createElement('li');
                         listItem.className = 'file-item';
@@ -636,7 +719,7 @@
                         `;
                         fileList.appendChild(listItem);
                     }
-                    
+
                     // 添加点击下载事件
                     document.querySelectorAll('.file-link').forEach(link => {
                         link.addEventListener('click', (e) => {
@@ -645,7 +728,7 @@
                             downloadFile(splitFiles[index].blob, splitFiles[index].name);
                         });
                     });
-                    
+
                     // 显示成功消息
                     let successMsg;
                     if (currentMode === 'parts') {
@@ -655,17 +738,17 @@
                             .replace('{parts}', parts)
                             .replace('{size}', partSizeMB.toFixed(1));
                     }
-                    
+
                     showStatus(successMsg, 'success');
                 } catch (error) {
                     showStatus(LANGUAGES[currentLang].splitError.replace('{error}', error.message), 'error');
                 }
             };
-            
-            reader.onerror = function() {
+
+            reader.onerror = function () {
                 showStatus(LANGUAGES[currentLang].splitError.replace('{error}', '无法读取文件'), 'error');
             };
-            
+
             reader.readAsText(selectedFile);
         }
 
@@ -675,24 +758,24 @@
                 showStatus(currentLang === 'zh' ? '请先分割文本文件' : 'Please split the text file first', 'error');
                 return;
             }
-            
+
             const zip = new JSZip();
-            
+
             // 添加所有文件到ZIP
             splitFiles.forEach(file => {
                 zip.file(file.name, file.blob);
             });
-            
+
             // 生成ZIP文件
             zip.generateAsync({ type: 'blob' })
-            .then(content => {
-                const baseName = selectedFile.name.replace('.txt', '');
-                saveAs(content, `${baseName}_split_files.zip`);
-                showStatus(LANGUAGES[currentLang].saveZip, 'success');
-            })
-            .catch(error => {
-                showStatus(`ZIP创建错误: ${error.message}`, 'error');
-            });
+                .then(content => {
+                    const baseName = selectedFile.name.replace('.txt', '');
+                    saveAs(content, `${baseName}_split_files.zip`);
+                    showStatus(LANGUAGES[currentLang].saveZip, 'success');
+                })
+                .catch(error => {
+                    showStatus(`ZIP创建错误: ${error.message}`, 'error');
+                });
         }
 
         // 下载单个文件
@@ -712,7 +795,7 @@
             const statusEl = document.getElementById('status');
             statusEl.innerHTML = message;
             statusEl.className = `status ${type} show`;
-            
+
             // 5秒后隐藏
             setTimeout(() => {
                 statusEl.className = 'status';
@@ -731,11 +814,11 @@
         // 切换语言
         function switchLanguage(lang) {
             currentLang = lang;
-            
+
             // 更新按钮状态
             document.getElementById('lang-zh').classList.toggle('active', lang === 'zh');
             document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-            
+
             // 更新界面文本
             const texts = LANGUAGES[lang];
             document.getElementById('title').textContent = texts.title;
@@ -749,12 +832,30 @@
             document.getElementById('tip').textContent = texts.tip;
             document.getElementById('zip-btn').textContent = texts.zipBtn;
             document.getElementById('size-info').textContent = texts.sizeInfo;
-            
+
             // 如果已有文件，更新大小显示
             if (selectedFile) {
                 document.getElementById('file-size-display').textContent = formatFileSize(selectedFile.size);
             }
         }
     </script>
+    <div id="new-version-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>🎉 新版本已发布！</h2>
+            <p>新版本文本分割工具已发布～界面和功能全面改版，更加美观易用。当前版本仍可继续使用，但强烈推荐升级体验。</p>
+            <div class="modal-btns">
+                <a href="TXTcut.html" class="upgrade-btn">🚀 点我访问新版</a>
+                <button class="close-modal-btn" onclick="document.getElementById('new-version-modal').style.display='none'">
+                    继续使用旧版
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 自动弹出逻辑（已包含在 HTML 结构中，此处为补充说明）
+        // 用户点击“点我访问新版”将跳转至 TXTcut.html
+    </script>
 </body>
+
 </html>
