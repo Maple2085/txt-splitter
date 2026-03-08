@@ -9,7 +9,9 @@
         :root {
             --primary-blue: #4361ee;
             --secondary-red: #f72585;
+            --bg-dark: #0f172a;
             --glass-bg: rgba(255, 255, 255, 0.96);
+            --success-green: #06d6a0;
         }
 
         * {
@@ -42,15 +44,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         header {
@@ -82,27 +77,10 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        .file-emoji {
-            font-size: 2.5rem;
-        }
-
-        .file-details {
-            flex-grow: 1;
-        }
-
-        .file-name {
-            font-weight: 700;
-            color: var(--primary-blue);
-            font-size: 1.1rem;
-            word-break: break-all;
-            margin-bottom: 4px;
-        }
-
-        .file-size-display {
-            font-size: 0.9rem;
-            color: #94a3b8;
-            font-weight: 500;
-        }
+        .file-emoji { font-size: 2.5rem; }
+        .file-details { flex-grow: 1; }
+        .file-name { font-weight: 700; color: var(--primary-blue); font-size: 1.1rem; word-break: break-all; margin-bottom: 4px; }
+        .file-size-display { font-size: 0.9rem; color: #94a3b8; font-weight: 500; }
 
         .upload-area {
             border: 2px dashed #cbd5e1;
@@ -115,16 +93,12 @@
             cursor: pointer;
         }
 
-        .upload-area:hover,
-        .upload-area.dragover {
+        .upload-area:hover, .upload-area.dragover {
             border-color: var(--primary-blue);
             background: #eff6ff;
         }
 
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
+        .upload-icon { font-size: 3rem; margin-bottom: 10px; }
 
         .mode-switch {
             display: flex;
@@ -158,13 +132,7 @@
             border-radius: 16px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
+        label { display: block; margin-bottom: 10px; font-weight: 700; color: #1e293b; }
         input[type="number"] {
             width: 100%;
             padding: 12px;
@@ -173,10 +141,7 @@
             font-size: 1rem;
             outline: none;
         }
-
-        input[type="number"]:focus {
-            border-color: var(--primary-blue);
-        }
+        input[type="number"]:focus { border-color: var(--primary-blue); }
 
         .btn {
             width: 100%;
@@ -196,49 +161,16 @@
             gap: 10px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            background: #3a0ca3;
-        }
+        .btn:hover { transform: translateY(-2px); background: #3a0ca3; }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        .btn:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
+        .status-container { min-height: 50px; margin: 10px 0; }
+        .status { text-align: center; padding: 12px; border-radius: 10px; font-weight: 600; display: none; }
+        .status.show { display: block; }
+        .status.success { background: #dcfce7; color: #166534; }
+        .status.error { background: #fee2e2; color: #991b1b; }
 
-        .status-container {
-            min-height: 50px;
-            margin: 10px 0;
-        }
-
-        .status {
-            text-align: center;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 600;
-            display: none;
-        }
-
-        .status.show {
-            display: block;
-        }
-
-        .status.success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .result-section {
-            margin-top: 30px;
-        }
-
+        .result-section { margin-top: 30px; }
         .result-header {
             display: flex;
             justify-content: space-between;
@@ -248,20 +180,8 @@
             border-bottom: 2px solid #f1f5f9;
         }
 
-        .result-title {
-            font-size: 1.25rem;
-            color: #1e293b;
-            font-weight: 800;
-        }
-
-        .download-tip {
-            font-size: 0.85rem;
-            color: var(--primary-blue);
-            font-weight: 600;
-            background: #eff6ff;
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
+        .result-title { font-size: 1.25rem; color: #1e293b; font-weight: 800; }
+        .download-tip { font-size: 0.85rem; color: var(--primary-blue); font-weight: 600; background: #eff6ff; padding: 4px 10px; border-radius: 6px; }
 
         .file-list {
             list-style: none;
@@ -281,41 +201,15 @@
             cursor: pointer;
         }
 
-        .file-item:last-child {
-            border-bottom: none;
-        }
+        .file-item:last-child { border-bottom: none; }
+        .file-item:hover { background: #f8fafc; padding-left: 28px; }
 
-        .file-item:hover {
-            background: #f8fafc;
-            padding-left: 28px;
-        }
+        .file-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .file-link { color: #1e293b; text-decoration: none; font-weight: 600; flex-grow: 1; transition: color 0.2s; }
+        .file-item:hover .file-link { color: var(--primary-blue); text-decoration: underline; }
 
-        .file-main-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .file-link {
-            color: #1e293b;
-            text-decoration: none;
-            font-weight: 600;
-            flex-grow: 1;
-            transition: color 0.2s;
-        }
-
-        .file-item:hover .file-link {
-            color: var(--primary-blue);
-            text-decoration: underline;
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
+        .action-btns { display: flex; gap: 8px; align-items: center; }
+        
         .mini-btn {
             border: none;
             padding: 6px 12px;
@@ -329,27 +223,11 @@
             gap: 4px;
         }
 
-        .copy-btn {
-            background: #f1f5f9;
-            color: #475569;
-        }
+        .copy-btn { background: #f1f5f9; color: #475569; }
+        .copy-btn:hover { background: #e2e8f0; color: var(--primary-blue); transform: scale(1.05); }
 
-        .copy-btn:hover {
-            background: #e2e8f0;
-            color: var(--primary-blue);
-            transform: scale(1.05);
-        }
-
-        .preview-btn {
-            background: #f0f9ff;
-            color: #0284c7;
-        }
-
-        .preview-btn:hover {
-            background: #0284c7;
-            color: white;
-            transform: scale(1.05);
-        }
+        .preview-btn { background: #f0f9ff; color: #0284c7; }
+        .preview-btn:hover { background: #0284c7; color: white; transform: scale(1.05); }
 
         .file-size-tag {
             color: #64748b;
@@ -360,18 +238,11 @@
             border-radius: 4px;
         }
 
-        .zip-btn {
-            background: var(--secondary-red);
-            box-shadow: 0 10px 15px -3px rgba(247, 37, 133, 0.3);
-        }
-
-        .zip-btn:hover {
-            background: #e01e74;
-        }
+        .zip-btn { background: var(--secondary-red); box-shadow: 0 10px 15px -3px rgba(247, 37, 133, 0.3); }
+        .zip-btn:hover { background: #e01e74; }
 
         .loader {
-            width: 18px;
-            height: 18px;
+            width: 18px; height: 18px;
             border: 2px solid currentColor;
             border-bottom-color: transparent;
             border-radius: 50%;
@@ -379,26 +250,11 @@
             animation: rotation 1s linear infinite;
         }
 
-        @keyframes rotation {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media (max-width: 640px) {
-            .container {
-                padding: 20px;
-            }
-
-            .result-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+            .container { padding: 20px; }
+            .result-header { flex-direction: column; align-items: flex-start; gap: 8px; }
         }
     </style>
 </head>
@@ -445,10 +301,8 @@
             <div id="estimate" style="color:#64748b; font-weight:600; margin-left:6px;"> </div>
         </div>
 
-        <div id="split-progress"
-            style="display:none; height:8px; background:#f1f5f9; border-radius:8px; overflow:hidden;">
-            <div id="split-progress-bar"
-                style="height:100%; width:0%; background:var(--primary-blue); transition: width 0.3s;"></div>
+        <div id="split-progress" style="display:none; height:8px; background:#f1f5f9; border-radius:8px; overflow:hidden;">
+            <div id="split-progress-bar" style="height:100%; width:0%; background:var(--primary-blue); transition: width 0.3s;"></div>
         </div>
 
         <div class="status-container">
@@ -533,7 +387,7 @@
                 partsCount = Math.max(1, Math.ceil((selectedFile.size / (1024 * 1024)) / sizeMB));
             }
             const avg = selectedFile.size / partsCount;
-            est.textContent = `预估 ${partsCount} 份 · 每份约 ${formatMB(avg)}`;
+            est.textContent = `预估 ${partsCount} 份 · 每份约 ${formatMB(Math.ceil(avg))}`;
         }
 
         async function processSplit() {
@@ -546,7 +400,7 @@
             const reader = new FileReader();
             reader.onload = async function (e) {
                 const text = e.target.result;
-                let partsCount = (currentMode === 'parts')
+                let partsCount = (currentMode === 'parts') 
                     ? Math.max(1, parseInt(document.getElementById('parts-input').value) || 1)
                     : Math.max(1, Math.ceil((selectedFile.size / (1024 * 1024)) / (parseFloat(document.getElementById('size-input').value) || 1)));
 
@@ -584,9 +438,9 @@
 
                     listEl.appendChild(li);
                     document.getElementById('split-progress-bar').style.width = Math.round(((i + 1) / partsCount) * 100) + '%';
-
-                    // 只有分割份数较多时才需要让出主线程更新 UI
-                    if (partsCount > 50 && i % 10 === 0) await new Promise(r => requestAnimationFrame(r));
+                    
+                    // 为了让 UI 有机会更新进度条，即使很快也保留一个极小的微任务间隙
+                    if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
                 }
 
                 splitBtn.disabled = false;
@@ -610,7 +464,7 @@
                 const zip = new JSZip();
                 splitFiles.forEach(f => zip.file(f.name, f.blob));
                 zip.generateAsync({ type: 'blob' }).then(content => {
-                    saveAs(content, `${selectedFile.name.replace('.txt', '')}_分割结果.zip`);
+                    saveAs(content, `${selectedFile.name.replace('.txt','')}_分割结果.zip`);
                     showMsg("打包成功，开始下载", 'success');
                 });
             }).catch(() => showMsg('资源加载失败', 'error'));
@@ -646,8 +500,8 @@
             setTimeout(() => s.classList.remove('show'), 3000);
         }
 
-        function formatMB(bytes) {
-            return bytes < 1024 * 1024 ? (bytes / 1024).toFixed(2) + ' KB' : (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        function formatMB(bytes) { 
+            return bytes < 1024 * 1024 ? (bytes / 1024).toFixed(2) + ' KB' : (bytes / (1024 * 1024)).toFixed(2) + ' MB'; 
         }
 
         function loadScript(src) {
@@ -660,5 +514,4 @@
         }
     </script>
 </body>
-
 </html>
