@@ -1,7 +1,3 @@
- 我来根据您的 `index.html` 文件内容，重新整理一份适合在 GitHub 上展示的 README.md。这份文档将准确反映当前代码的实际功能，并优化展示效果。  
- 根据您当前的 `index.html` 代码，我为您重新整理了一份适合 GitHub 展示的 README.md。这份文档去除了旧版对比内容，专注于描述当前实际功能，并采用现代化的 GitHub 文档风格，包含徽章、功能特性、使用说明等标准章节。
-
-```markdown
 # 📄 TXT文本分割工具
 
 <p align="center">
@@ -151,4 +147,3 @@
 <p align="center">
   Made with ❤️ for 小米手环阅读爱好者
 </p>
-```
