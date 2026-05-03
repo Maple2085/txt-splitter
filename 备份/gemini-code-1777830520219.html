@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXT 文本分割工具 v2.1</title>
+    <style>
+        :root {
+            /* 冰蓝主题色系 */
+            --primary-blue: #0ea5e9;
+            --primary-hover: #0284c7;
+            --primary-light: #e0f2fe;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --danger-color: #f43f5e;
+            
+            /* 毛玻璃参数 */
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.08);
+            --blur-filter: blur(20px) saturate(160%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            /* 奶白与冰蓝交织的径向渐变背景 */
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.8) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 255, 255, 1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(186, 230, 253, 0.6) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(255, 255, 255, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* 核心容器 */
+        .container {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--text-main);
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Bento 网格布局 */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* 通用毛玻璃卡片 */
+        .bento-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur-filter);
+            -webkit-backdrop-filter: var(--blur-filter);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            padding: 32px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .bento-card:hover {
+            box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.12);
+        }
+
+        /* 左侧：上传区 */
+        .upload-area {
+            border: 2px dashed #bae6fd;
+            border-radius: 16px;
+            padding: 50px 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-blue);
+            background: var(--primary-light);
+            transform: scale(0.99);
+        }
+
+        .upload-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            border: 1px solid var(--primary-light);
+            margin-top: 16px;
+            animation: slideUpFade 0.3s ease;
+        }
+
+        .file-name {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.05rem;
+            word-break: break-all;
+        }
+
+        /* 右侧：设置区 */
+        .settings-area {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mode-switch {
+            display: flex;
+            background: rgba(241, 245, 249, 0.6);
+            border-radius: 16px;
+            padding: 6px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+
+        .estimate-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin: 16px 0;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        /* 按钮设计 */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #38bdf8, var(--primary-blue));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px -5px rgba(14, 165, 233, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(14, 165, 233, 0.5);
+        }
+
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 进度与状态 */
+        #split-progress {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 16px;
+            display: none;
+        }
+
+        #split-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary-blue);
+            transition: width 0.2s ease-out;
+        }
+
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 16px;
+            display: none;
+            animation: slideUpFade 0.3s ease;
+        }
+        .status.show { display: block; }
+        .status.success { background: #dcfce7; color: #166534; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+
+        /* 底部结果区 */
+        .result-section {
+            grid-column: 1 / -1; /* 横跨整行 */
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.4rem;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .file-list {
+            list-style: none;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-item:last-child { border-bottom: none; }
+        .file-item:hover { background: white; padding-left: 32px; }
+
+        .file-link {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .file-item:hover .file-link { color: var(--primary-blue); }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .mini-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+        .mini-btn:hover { background: var(--primary-light); color: var(--primary-blue); transform: scale(1.05); }
+
+        .file-size-tag {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
+        /* 模态框设计优化 */
+        .preview-dialog {
+            padding: 32px;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(180%);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 700px;
+            margin: auto;
+        }
+        .preview-dialog::backdrop {
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(6px);
+        }
+        .preview-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 16px;
+            overflow-y: auto;
+            max-height: 60vh;
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.7;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* 响应式降级 */
+        @media (max-width: 768px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .upload-area { padding: 40px 20px; }
+            .file-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .action-btns { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <dialog id="preview-dialog" class="preview-dialog">
+        <h3 class="result-title" style="margin-bottom: 16px;">内容安全预览</h3>
+        <pre id="preview-content" class="preview-content"></pre>
+        <div style="text-align: right; margin-top: 24px;">
+            <button class="mini-btn" style="padding: 10px 24px; font-size: 1rem;"
+                onclick="document.getElementById('preview-dialog').close()">关闭预览</button>
+        </div>
+    </dialog>
+
+    <div class="container">
+        <header>
+            <h1>文本分割工具</h1>
+            <p class="description">原生解析引擎 · 零数据上云 · 突破设备传输限制</p>
+        </header>
+
+        <div class="bento-grid">
+            <!-- 左侧卡片：文件入口 -->
+            <div class="bento-card">
+                <div class="upload-area" id="upload-area" role="button" tabindex="0">
+                    <div class="upload-icon">✨</div>
+                    <h2 style="margin-bottom: 8px; color: var(--text-main);">选择文本文件</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">拖拽至此，或点击浏览 .txt 文件</p>
+                    <input type="file" id="file-input" style="display: none;" accept=".txt,text/plain">
+                </div>
+
+                <div id="file-info" class="file-info" style="display: none;">
+                    <div style="font-size: 2rem;">📄</div>
+                    <div style="flex-grow: 1;">
+                        <div class="file-name" id="file-name-display"></div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;" id="file-size-display"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧卡片：核心控制台 -->
+            <div class="bento-card settings-area">
+                <div>
+                    <div class="mode-switch">
+                        <button id="mode-parts" class="mode-btn active">按份数均分</button>
+                        <button id="mode-size" class="mode-btn">按大小截断</button>
+                    </div>
+
+                    <div class="input-group" id="parts-group">
+                        <label>需要切割成几份？</label>
+                        <input type="number" id="parts-input" min="1" value="3">
+                    </div>
+
+                    <div class="input-group" id="size-group" style="display: none;">
+                        <label>单文件极限大小 (MB)</label>
+                        <input type="number" id="size-input" min="0.1" step="0.1" value="2">
+                    </div>
+                </div>
+
+                <div>
+                    <div id="estimate" class="estimate-text">等待文件接入...</div>
+                    <button id="split-btn" class="btn">启动分割引擎</button>
+                    <div id="split-progress"><div id="split-progress-bar"></div></div>
+                    <div id="status" class="status"></div>
+                </div>
+            </div>
+
+            <!-- 底部全宽卡片：处理结果 -->
+            <div class="bento-card result-section" id="result-area">
+                <div class="result-header">
+                    <h3 class="result-title">切片清单</h3>
+                    <button id="zip-btn" class="btn" style="width: auto; padding: 12px 24px; font-size: 1rem; background: linear-gradient(135deg, #f43f5e, #e11d48);">打包下载 (.ZIP)</button>
+                </div>
+                <ul class="file-list" id="file-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 这里的 Script 是完全继承了上一次修复 10 个核心 Bug 后的终极版本 -->
+    <script>
+        let selectedFile = null;
+        let splitFiles = [];
+        let currentMode = 'parts';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-input');
+
+            document.getElementById('mode-parts').onclick = () => toggleMode('parts');
+            document.getElementById('mode-size').onclick = () => toggleMode('size');
+
+            uploadArea.onclick = () => fileInput.click();
+            uploadArea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+            });
+
+            fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+            uploadArea.ondragover = (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); };
+            uploadArea.ondragleave = () => { uploadArea.classList.remove('dragover'); };
+            uploadArea.ondrop = (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            };
+
+            document.getElementById('split-btn').onclick = processSplit;
+            document.getElementById('zip-btn').onclick = downloadZip;
+
+            document.getElementById('parts-input').addEventListener('input', updateEstimate);
+            document.getElementById('size-input').addEventListener('input', updateEstimate);
+        });
+
+        function toggleMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-parts').classList.toggle('active', mode === 'parts');
+            document.getElementById('mode-size').classList.toggle('active', mode === 'size');
+            document.getElementById('parts-group').style.display = mode === 'parts' ? 'block' : 'none';
+            document.getElementById('size-group').style.display = mode === 'size' ? 'block' : 'none';
+            updateEstimate();
+        }
+
+        function handleFile(file) {
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith('.txt') && file.type !== 'text/plain') {
+                showMsg("格式不支持，请上传标准的 .txt 文本文件", 'error');
+                return;
+            }
+            selectedFile = file;
+            document.getElementById('upload-area').style.display = 'none';
+            document.getElementById('file-info').style.display = 'flex';
+            document.getElementById('file-name-display').textContent = file.name;
+            document.getElementById('file-size-display').textContent = formatMB(file.size);
+            showMsg('文件已加载并解析', 'success');
+            updateEstimate();
+        }
+
+        function updateEstimate() {
+            const est = document.getElementById('estimate');
+            if (!selectedFile) { est.textContent = '等待文件接入...'; return; }
+            let partsCount = 0;
+            if (currentMode === 'parts') {
+                partsCount = parseInt(document.getElementById('parts-input').value) || 1;
+            } else {
+                const sizeMB = parseFloat(document.getElementById('size-input').value) || 1;
+                partsCount = Math.max(1, Math.ceil((selectedFile.size / (1024 * 1024)) / sizeMB));
+            }
+            const avg = selectedFile.size / partsCount;
+            est.textContent = `预估生成 ${partsCount} 个分卷 · 单卷约 ${formatMB(avg)}`;
+        }
+
+        async function processSplit() {
+            if (!selectedFile) return showMsg("请先上传文本文件", 'error');
+
+            let partsCount = 0;
+            if (currentMode === 'parts') {
+                partsCount = parseInt(document.getElementById('parts-input').value);
+                if (!partsCount || partsCount <= 0) return showMsg("请输入大于 0 的有效分割份数", 'error');
+            } else {
+                const sizeMB = parseFloat(document.getElementById('size-input').value);
+                if (!sizeMB || sizeMB < 0.01) return showMsg("每份文件大小不能小于 0.01 MB", 'error');
+                partsCount = Math.ceil((selectedFile.size / (1024 * 1024)) / sizeMB);
+                if (partsCount < 1) partsCount = 1;
+            }
+
+            if (partsCount > 5000) return showMsg("分割份数超限（最大5000份），请调整参数", 'error');
+
+            const splitBtn = document.getElementById('split-btn');
+            splitBtn.disabled = true;
+            splitBtn.textContent = `引擎运转中...`;
+
+            splitFiles = [];
+            const listEl = document.getElementById('file-list');
+            listEl.innerHTML = '';
+            document.getElementById('result-area').style.display = 'block';
+            document.getElementById('split-progress').style.display = 'block';
+
+            const targetBytes = Math.ceil(selectedFile.size / partsCount);
+            let currentOffset = 0;
+
+            for (let i = 0; i < partsCount; i++) {
+                if (currentOffset >= selectedFile.size) break;
+
+                let chunkEnd = currentOffset + targetBytes;
+
+                if (i < partsCount - 1 && chunkEnd < selectedFile.size) {
+                    const windowStart = Math.max(currentOffset, chunkEnd - 2560);
+                    const windowEnd = Math.min(selectedFile.size, chunkEnd + 2560);
+                    const windowBlob = selectedFile.slice(windowStart, windowEnd);
+                    
+                    const windowText = await windowBlob.text(); 
+                    const lastNewlineIdx = windowText.lastIndexOf('\n');
+
+                    if (lastNewlineIdx !== -1) {
+                        const textBeforeNewline = windowText.substring(0, lastNewlineIdx + 1);
+                        const bytesBeforeNewline = new Blob([textBeforeNewline]).size;
+                        chunkEnd = windowStart + bytesBeforeNewline;
+                    }
+                } else {
+                    chunkEnd = selectedFile.size;
+                }
+
+                const chunkBlob = selectedFile.slice(currentOffset, chunkEnd);
+                currentOffset = chunkEnd;
+
+                if (chunkBlob.size === 0) continue;
+
+                const name = `P${i + 1}_${selectedFile.name.replace(/\.txt$/i, '')}.txt`;
+                splitFiles.push({ name, blob: chunkBlob });
+
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.innerHTML = `
+                    <span class="file-link">${name}</span>
+                    <div class="action-btns">
+                        <span class="file-size-tag">${formatMB(chunkBlob.size)}</span>
+                        <button class="mini-btn copy-btn">📋</button>
+                        <button class="mini-btn preview-btn">🔍</button>
+                    </div>
+                `;
+
+                li.onclick = () => saveBlob(chunkBlob, name);
+                li.querySelector('.copy-btn').onclick = (ev) => { ev.stopPropagation(); copyName(name); };
+                li.querySelector('.preview-btn').onclick = (ev) => { ev.stopPropagation(); showPreview(chunkBlob); };
+
+                listEl.appendChild(li);
+                document.getElementById('split-progress-bar').style.width = Math.round(((i + 1) / partsCount) * 100) + '%';
+
+                await new Promise(r => setTimeout(r, 0));
+            }
+
+            splitBtn.disabled = false;
+            splitBtn.textContent = "启动分割引擎";
+            document.getElementById('split-progress').style.display = 'none';
+
+            showMsg(`处理完毕！共切分出 ${splitFiles.length} 个分卷`, 'success');
+        }
+
+        function downloadZip() {
+            if (splitFiles.length === 0) return showMsg('数据列表为空，请先执行分割', 'error');
+            const jszipUrl = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            const fileSaverUrl = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
+
+            showMsg('正在打包压缩中...', 'success');
+            Promise.all([loadScript(jszipUrl), loadScript(fileSaverUrl)]).then(() => {
+                const zip = new JSZip();
+                splitFiles.forEach(f => zip.file(f.name, f.blob));
+                zip.generateAsync({ type: 'blob' }).then(content => {
+                    saveAs(content, `${selectedFile.name.replace(/\.txt$/i, '')}_切片合集.zip`);
+                    showMsg("打包成功，即将开始下载", 'success');
+                });
+            }).catch(() => showMsg('核心依赖加载失败，请检查网络连接', 'error'));
+        }
+
+        function saveBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 200);
+        }
+
+        async function copyName(name) {
+            try {
+                await navigator.clipboard.writeText(name);
+                showMsg('文件名已复制到剪贴板', 'success');
+            } catch (err) {
+                showMsg('复制失败，请手动选取', 'error');
+            }
+        }
+
+        async function showPreview(blob) {
+            const slice = blob.slice(0, 1000);
+            const text = await slice.text();
+            const dialog = document.getElementById('preview-dialog');
+            document.getElementById('preview-content').textContent = text + '\n\n... (截断显示)';
+            dialog.showModal();
+        }
+
+        function showMsg(m, type) {
+            const s = document.getElementById('status');
+            s.textContent = m; 
+            s.className = `status show ${type}`;
+            setTimeout(() => s.classList.remove('show'), 3000);
+        }
+
+        function formatMB(bytes) {
+            return bytes < 1024 * 1024 ? (bytes / 1024).toFixed(2) + ' KB' : (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector(`script[src="${src}"]`)) return resolve();
+                const s = document.createElement('script'); s.src = src;
+                s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+    </script>
+</body>
+</html>

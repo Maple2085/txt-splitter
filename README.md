@@ -1,149 +1,92 @@
-# 📄 TXT文本分割工具
-
-<p align="center">
-  <img src="https://img.shields.io/badge/version-2.1-blue.svg?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/platform-Web-orange.svg?style=for-the-badge" alt="Platform">
-</p>
-
-<p align="center">
-  <b>纯浏览器端处理，快速分割大型TXT文件，完美解决小米手环等设备的文件大小限制问题</b>
-</p>
-
-<p align="center">
-  <a href="https://maple2085.github.io/txt-splitter/"><img src="https://img.shields.io/badge/🚀_在线体验-点击访问-4361ee?style=for-the-badge" alt="Online Demo"></a>
-</p>
-
----
-
-## ✨ 功能特性
-
-- **🔒 纯本地处理** - 所有操作在浏览器内完成，文件无需上传服务器，保障隐私安全
-- **📊 双模式分割** - 支持按份数分割或按文件大小（MB）分割
-- **⚡ 实时进度** - 分割过程可视化进度条，大文件处理不焦虑
-- **📋 智能预估** - 分割前自动计算预估份数和单文件大小
-- **🔍 内容预览** - 支持预览分割后的文件内容（前500字符），确认分割点
-- **📦 批量下载** - 支持打包为ZIP下载或单独下载每个文件
-- **📱 响应式设计** - 完美适配桌面端和移动端
-- **♿ 无障碍支持** - 支持键盘导航操作
-
----
-
-## 🎯 使用场景
-
-### 小米手环电子书阅读
-专为解决小米手环电子阅读器的 **4MB 文件大小限制** 设计（实际建议 **2MB** 以内更稳定）：
-
-- 将超限的TXT电子书分割成符合手环要求的小文件
-- 确保长篇电子书可以分段阅读
-- 保持文本完整性，避免内容截断
-
-> 💡 **实测建议**：小米手环9传输TXT时，文件控制在2MB以内可显著降低重启概率。
-
----
-
-## 🚀 快速开始
-
-### 在线使用（推荐）
-直接访问：[https://maple2085.github.io/txt-splitter/](https://maple2085.github.io/txt-splitter/)
-
-### 本地使用
-1. 克隆仓库
-   ```bash
-   git clone https://github.com/maple2085/txt-splitter.git
-   ```
-2. 直接用浏览器打开 `index.html` 即可使用
-
-> **注意**：无需安装任何依赖，无需构建，纯静态HTML文件。
-
----
-
-## 📖 使用指南
-
-### 1. 上传文件
-- 点击上传区域或拖放TXT文件至页面
-- 支持任意大小的TXT文本文件
-
-### 2. 选择分割模式
-| 模式 | 说明 | 适用场景 |
-|:---|:---|:---|
-| **按份数分割** | 将文件平均分成N份 | 已知需要分成几段 |
-| **按大小分割** | 每份指定最大MB数 | 有明确的单文件大小限制（如2MB） |
-
-### 3. 设置参数
-- **按份数**：输入需要分割的份数（如：5）
-- **按大小**：输入每份的最大MB数（如：2）
-
-> 系统会实时显示预估结果：*"预估 5 份 · 每份约 2.14 MB"*
-
-### 4. 执行分割
-点击"立即开始分割"，等待处理完成。大文件分割时会显示实时进度条。
-
-### 5. 下载文件
-- **单独下载**：点击列表中的任意文件名下载该部分
-- **批量下载**：点击"打包下载全部"获取ZIP压缩包
-- **复制文件名**：点击📋按钮复制文件名（便于批量管理）
-
----
-
-## 🛠️ 技术实现
-
-- **纯前端架构** - HTML5 + CSS3 + Vanilla JavaScript，零后端依赖
-- **File API** - 使用 FileReader 读取本地文件
-- **Blob & URL API** - 生成本地下载链接
-- **按需加载** - JSZip 和 FileSaver 仅在打包下载时动态加载，优化首屏性能
-- **异步处理** - 分割大文件时采用分片处理，避免UI卡顿
-
----
-
-## 🌟 界面预览
-
-```
-┌─────────────────────────────────────┐
-│  📄 TXT文本分割工具 v2.1              │
-│                                     │
-│  [拖放或点击上传TXT文件]              │
-│                                     │
-│  [按份数分割] [按大小分割]            │
-│                                     │
-│  分割成多少份？ [ 3 ]                │
-│                                     │
-│  预估 3 份 · 每份约 1.50 MB          │
-│                                     │
-│  [    立即开始分割    ]              │
-│                                     │
-│  ─────── 分割结果预览 ───────        │
-│  📄 P1_小说名.txt    📋 🔍 1.50 MB  │
-│  📄 P2_小说名.txt    📋 🔍 1.48 MB  │
-│  📄 P3_小说名.txt    📋 🔍 1.52 MB  │
-│                                     │
-│  [   打包下载全部 (.ZIP)   ]         │
-└─────────────────────────────────────┘
-```
-
----
-
 ## 📝 更新日志
 
-### v2.1 (2026-03-08)
+### v2.2 (2026-05-04) — 可访问性与动画增强版
+
+**🎨 动画与交互**
+- Spring 物理曲线动画系统（`spring-bounce` / `spring-smooth` / `spring-exit` / `ease-out-expo`）
+- 骨架屏（处理期间脉动占位）+ Stagger 列表入场动画
+- Toast 通知系统（右上角堆叠，弹性进入/退出）
+- 按钮涟漪效果、进度条光泽扫过、输入框错误抖动
+
+**♿ 可访问性**
+- 完整 ARIA 语义化（`role`、`aria-label`、`aria-live`、`aria-selected` 等）
+- 键盘全导航（Tab 聚焦、Enter/Space 激活、ESC 关闭 Dialog）
+- 高对比度焦点环 + 焦点管理（Dialog 开关自动转移焦点）
+- `prefers-reduced-motion` 尊重用户减少动画偏好
+
+**🛡️ 安全修复**
+- MIME 类型 + 后缀双重校验，防止恶意文件改名上传
+- `&lt;dialog&gt;` + `textContent` 替代 `window.open` + `document.write`，彻底消除 XSS
+- `navigator.clipboard.writeText()` 替代废弃 `execCommand('copy')`
+
+**⚡ 性能优化**
+- `Blob.slice()` 替代 `FileReader.readAsText()`，100MB+ 文件不卡死
+- 每次循环无条件让出主线程，进度条实时更新
+
+**🐛 Bug 修复**
+- 显式输入边界校验（份数 1-5000、大小 ≥0.01），超限聚焦报错
+- 分割前重置 `splitFiles` 数组和列表 DOM，防止旧结果累积
+- 防抖输入（150ms）避免频繁重计算
+
+---
+
+### v2.1.1 (2026-03-08) — 安全与性能优化版
+
+**🛡️ 安全修复**
+- MIME 类型校验：不仅校验后缀，还校验 MIME 类型，防止恶意改名
+- Dialog 弹窗：使用原生 `&lt;dialog&gt;` 元素替代 `window.open`，防止被浏览器拦截
+- XSS 防护：预览内容使用 `textContent` 替代 `innerHTML`，防止脚本注入
+
+**⚡ 性能优化**
+- Blob 游标切片：抛弃 `readAsText` 读全文，改用基于 File 的 Blob 切片，避免大文件内存溢出
+- 智能断点：寻找切点附近的换行符边界，防止切断中文或切断句子
+- UTF-8 安全解码：`blob.text()` 安全按 UTF-8 解码，不会产生截断乱码
+
+**🐛 Bug 修复**
+- 数组堆积：提早清空旧结果，防止多次点击导致数组不断 Push 堆积
+- Clipboard API：抛弃废弃的 `execCommand`，升级为异步现代 Clipboard API
+
+---
+
+### v2.1 (2026-03-08) — 初始优化版
 - ✨ 优化智能进度条显示
 
 ---
 
-## 🤝 致谢与灵感
+### v2.0 — 初始版本
 
-- **灵感来源**：本项目灵感源于 [@lixuan5201314](https://github.com/lixuan5201314/lixuan5201314) 的创意作品
-- **原帖参考**：[米坛社区原帖](https://www.bandbbs.cn/resources/2734/)
-- **开发支持**：开发过程中使用了 `Gemini`  `Kimi` 等 AI 辅助工具进行代码实现
+v2.0 存在以下已知问题，已在后续版本修复：
+
+**Bug（3 项）**
+- ~~文本按字符切割，中文会断行乱码~~ ✅ 已修复（v2.1.1）
+- ~~previewText 未转义 HTML，存在 XSS~~ ✅ 已修复（v2.1.1）
+- ~~execCommand('copy') 已废弃~~ ✅ 已修复（v2.1.1）
+
+**性能（2 项）**
+- ~~FileReader 将整个文件读入内存~~ ✅ 已修复（v2.1.1）
+- ~~UI 让出时机过于保守（每 10 份才让出一次）~~ ✅ 已修复（v2.1.1）
+
+**UX（3 项）**
+- ~~分割完成后结果区不清空，新结果追加在旧结果后~~ ✅ 已修复（v2.1.1）
+- ~~弹窗预览被拦截器阻断~~ ✅ 已修复（v2.1.1）
+- ~~输入框缺少边界校验与错误提示~~ ✅ 已修复（v2.2）
+
+**安全（2 项）**
+- ~~previewText XSS（同 Bug 区）~~ ✅ 已修复（v2.1.1）
+- ~~仅校验扩展名，未校验 MIME 类型~~ ✅ 已修复（v2.1.1）
+
+---
+
+## 🤝 致谢
+
+- **灵感来源**：[@lixuan5201314](https://github.com/lixuan5201314/lixuan5201314)
+- **原帖参考**：[米坛社区](https://www.bandbbs.cn/resources/2734/)
+- **开发支持**：`Gemini` `Kimi` 等 AI 辅助工具
 
 ---
 
 ## 📄 许可证
 
-本项目采用 [MIT](LICENSE) 许可证开源。
+[MIT](LICENSE)
 
----
-
-<p align="center">
-  Made with ❤️ for 小米手环阅读爱好者
-</p>
+&lt;p align="center"&gt;Made with ❤️ for 小米手环阅读爱好者&lt;/p&gt;
