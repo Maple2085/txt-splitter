@@ -1380,29 +1380,6 @@
             input.focus();
         }
 
-        function readBlobAsText(blob, timeoutMs = 15000) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                const timer = setTimeout(() => {
-                    reader.abort();
-                    reject(new Error('读取文件超时'));
-                }, timeoutMs);
-                reader.onload = () => {
-                    clearTimeout(timer);
-                    resolve(reader.result || '');
-                };
-                reader.onerror = () => {
-                    clearTimeout(timer);
-                    reject(reader.error || new Error('读取文件失败'));
-                };
-                reader.onabort = () => {
-                    clearTimeout(timer);
-                    reject(new Error('读取文件已中止'));
-                };
-                reader.readAsText(blob);
-            });
-        }
-
         async function processSplit() {
             if (!selectedFile) {
                 showToast("请选择文件", 'error');
@@ -1460,61 +1437,49 @@
             progressContainer.setAttribute('aria-valuenow', '0');
             progressText.textContent = '正在分析文件...';
 
-            try {
-                const targetBytes = Math.ceil(selectedFile.size / partsCount);
-                let currentOffset = 0;
+            const targetBytes = Math.ceil(selectedFile.size / partsCount);
+            let currentOffset = 0;
 
-                for (let i = 0; i < partsCount; i++) {
-                    if (currentOffset >= selectedFile.size) break;
+            for (let i = 0; i < partsCount; i++) {
+                if (currentOffset >= selectedFile.size) break;
 
-                    let chunkEnd = currentOffset + targetBytes;
+                let chunkEnd = currentOffset + targetBytes;
 
-                    if (i < partsCount - 1 && chunkEnd < selectedFile.size) {
-                        const windowStart = Math.max(currentOffset, chunkEnd - 2560);
-                        const windowEnd = Math.min(selectedFile.size, chunkEnd + 2560);
-                        const windowBlob = selectedFile.slice(windowStart, windowEnd);
-                        const windowText = await readBlobAsText(windowBlob);
-                        const lastNewlineIdx = windowText.lastIndexOf('\n');
+                if (i < partsCount - 1 && chunkEnd < selectedFile.size) {
+                    const windowStart = Math.max(currentOffset, chunkEnd - 2560);
+                    const windowEnd = Math.min(selectedFile.size, chunkEnd + 2560);
+                    const windowBlob = selectedFile.slice(windowStart, windowEnd);
+                    const windowText = await windowBlob.text();
+                    const lastNewlineIdx = windowText.lastIndexOf('\n');
 
-                        if (lastNewlineIdx !== -1) {
-                            const textBeforeNewline = windowText.substring(0, lastNewlineIdx + 1);
-                            const bytesBeforeNewline = new Blob([textBeforeNewline]).size;
-                            const safeChunkEnd = windowStart + bytesBeforeNewline;
-                            if (safeChunkEnd > currentOffset && safeChunkEnd <= selectedFile.size) {
-                                chunkEnd = safeChunkEnd;
-                            }
-                        }
-                    } else {
-                        chunkEnd = selectedFile.size;
+                    if (lastNewlineIdx !== -1) {
+                        const textBeforeNewline = windowText.substring(0, lastNewlineIdx + 1);
+                        const bytesBeforeNewline = new Blob([textBeforeNewline]).size;
+                        chunkEnd = windowStart + bytesBeforeNewline;
                     }
-
-                    const chunkBlob = selectedFile.slice(currentOffset, chunkEnd);
-                    currentOffset = chunkEnd;
-
-                    if (chunkBlob.size === 0) continue;
-
-                    const name = `P${i + 1}_${selectedFile.name.replace(/\.txt$/i, '')}.txt`;
-                    splitFiles.push({ name, blob: chunkBlob });
-
-                    // 更新进度
-                    const pct = Math.round(((i + 1) / partsCount) * 100);
-                    progressBar.style.width = pct + '%';
-                    progressContainer.setAttribute('aria-valuenow', pct);
-                    progressText.textContent = `正在分割... ${pct}%`;
-
-                    await new Promise(r => setTimeout(r, 0));
+                } else {
+                    chunkEnd = selectedFile.size;
                 }
-            } catch (err) {
-                showToast(`分割失败：${err.message || '无法读取文件'}`, 'error');
-                splitFiles = [];
-            } finally {
-                splitBtn.disabled = false;
-                splitBtn.innerHTML = `<span aria-hidden="true">⚡</span> 立即开始分割`;
-                progressContainer.classList.remove('show');
-                skeletonList.style.display = 'none';
+
+                const chunkBlob = selectedFile.slice(currentOffset, chunkEnd);
+                currentOffset = chunkEnd;
+
+                if (chunkBlob.size === 0) continue;
+
+                const name = `P${i + 1}_${selectedFile.name.replace(/\.txt$/i, '')}.txt`;
+                splitFiles.push({ name, blob: chunkBlob });
+
+                // 更新进度
+                const pct = Math.round(((i + 1) / partsCount) * 100);
+                progressBar.style.width = pct + '%';
+                progressContainer.setAttribute('aria-valuenow', pct);
+                progressText.textContent = `正在分割... ${pct}%`;
+
+                await new Promise(r => setTimeout(r, 0));
             }
 
             // 隐藏骨架屏，显示真实列表
+            skeletonList.style.display = 'none';
             listEl.style.display = 'block';
 
             // 渲染列表项（带 stagger 动画）
@@ -1572,9 +1537,11 @@
                 listEl.appendChild(li);
             });
 
-            if (splitFiles.length > 0) {
-                showToast(`分割完成！共生成 ${splitFiles.length} 个文件`, 'success');
-            }
+            splitBtn.disabled = false;
+            splitBtn.innerHTML = `<span aria-hidden="true">⚡</span> 立即开始分割`;
+            progressContainer.classList.remove('show');
+
+            showToast(`分割完成！共生成 ${splitFiles.length} 个文件`, 'success');
         }
 
         function downloadZip() {

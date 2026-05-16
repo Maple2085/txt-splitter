@@ -1,5 +1,29 @@
 ## 📝 更新日志
 
+### v2.2.1 (2026-05-16) — 潜在的bug
+
+修复了issue1根因定位：这不是典型死循环。`for` 循环被 `partsCount` 限制，且最大 5000。卡在 issue 截图里的“正在分析文件...”阶段，是因为旧代码在第一次进度更新前执行：
+
+`await windowBlob.text()`
+
+如果移动端浏览器/文件提供器上的 sliced `Blob.text()` 抛错或不返回，`processSplit()` 没有 `catch/finally`，按钮、骨架屏、进度条都不会恢复，于是表现为“分割过程无法结束”。截图停在 0% 前，和这个路径吻合。
+
+我已修改了：
+
+- 新增 `readBlobAsText()`，用 `FileReader` 读取小窗口 slice，并加 15 秒超时。
+- 将 split 主循环里的 `windowBlob.text()` 替换为该 helper。
+- 给 split 处理段加 `try/catch/finally`，保证失败或超时时退出处理中状态。
+- 对换行切点增加 `safeChunkEnd > currentOffset` 防护，避免边界计算导致不推进。
+
+验证结果：
+
+- 用 issue 截图参数规模，132KB / 3 份，核心循环本身会结束。
+- 复现旧代码读取失败路径：状态停在 `disabled=true`、`progress="正在分析文件..."`、`skeleton=true`。
+- 补丁后同样失败会恢复按钮、隐藏骨架屏，并提示“分割失败”。
+- 脚本语法检查通过；`git diff --check` 只有 CRLF 换行提示。
+
+---
+
 ### v2.2 (2026-05-04) — 可访问性与动画增强版
 
 **🎨 动画与交互**
