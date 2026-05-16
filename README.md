@@ -2,7 +2,7 @@
 
 ### v2.2.1 (2026-05-16) — 潜在的bug
 
-修复了issue1根因定位：这不是典型死循环。`for` 循环被 `partsCount` 限制，且最大 5000。卡在 issue 截图里的“正在分析文件...”阶段，是因为旧代码在第一次进度更新前执行：
+修复了[issue#1](https://github.com/Maple2085/txt-splitter/issues/1)根因定位：这不是典型死循环。`for` 循环被 `partsCount` 限制，且最大 5000。卡在 issue 截图里的“正在分析文件...”阶段，是因为旧代码在第一次进度更新前执行：
 
 `await windowBlob.text()`
 
