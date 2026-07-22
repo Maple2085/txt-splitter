@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本分割工具</title>
+    <title>文本分割工具 v2.4.1</title>
     <style>
         :root {
             --primary-blue: #4361ee;
@@ -1386,7 +1386,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 partsCount = parseInt(document.getElementById('parts-input').value) || 1;
             } else {
                 const sizeMB = parseFloat(document.getElementById('size-input').value) || 1;
-                partsCount = Math.max(1, Math.ceil((selectedFile.size / (1024 * 1024)) / sizeMB));
+                const maxChunkBytes = Math.max(1, Math.floor(sizeMB * 1024 * 1024));
+                partsCount = Math.max(1, Math.ceil(selectedFile.size / maxChunkBytes));
             }
             const avg = selectedFile.size / partsCount;
             est.textContent = `预估 ${partsCount} 份 · 每份约 ${formatMB(avg)}`;
@@ -1430,7 +1431,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     return;
                 }
                 maxChunkBytes = Math.floor(sizeMB * 1024 * 1024);
-                partsCount = Math.ceil((selectedFile.size / (1024 * 1024)) / sizeMB);
+                partsCount = Math.ceil(selectedFile.size / maxChunkBytes);
                 if (partsCount < 1) partsCount = 1;
             }
 
@@ -1463,27 +1464,50 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             progressText.textContent = '正在分析文件...';
 
             try {
-                const targetBytes = Math.ceil(selectedFile.size / partsCount);
+                const targetBytes = currentMode === 'size'
+                    ? maxChunkBytes
+                    : Math.ceil(selectedFile.size / partsCount);
                 let currentOffset = 0;
-                const decoder = new TextDecoder('utf-8');
+                // 保留 UTF-8 BOM，避免换行位置换算时少掉 3 个字节。
+                const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
                 const encoder = new TextEncoder();
 
                 // 把字节偏移回退到 UTF-8 字符起点（跳过 10xxxxxx 续接字节）
-                const alignToCharBoundary = (bytes, windowStart, end) => {
-                    let idx = end - windowStart;
-                    while (idx > 0 && (bytes[idx] & 0xC0) === 0x80) idx--;
-                    return windowStart + idx;
+                const alignToCharBoundary = (bytes, windowStart, end, minimumOffset) => {
+                    const relativeEnd = Math.max(0, Math.min(bytes.length, end - windowStart));
+                    let idx = relativeEnd;
+                    while (idx > 0 && idx < bytes.length && (bytes[idx] & 0xC0) === 0x80) idx--;
+
+                    const aligned = windowStart + idx;
+                    if (aligned > minimumOffset) return aligned;
+
+                    // 目标位置落在当前块第一个字符内时，向前包含完整字符，确保游标推进。
+                    if (idx === 0 && relativeEnd < bytes.length && (bytes[relativeEnd] & 0xC0) === 0x80) {
+                        let next = relativeEnd + 1;
+                        while (next < bytes.length && (bytes[next] & 0xC0) === 0x80) next++;
+                        return windowStart + next;
+                    }
+
+                    return end;
                 };
 
-                for (let i = 0; i < partsCount; i++) {
-                    if (currentOffset >= selectedFile.size) break;
+                const maxIterations = currentMode === 'size' ? 5000 : partsCount;
+                for (let i = 0; currentOffset < selectedFile.size && i < maxIterations; i++) {
 
-                    let chunkEnd = currentOffset + targetBytes;
+                    const maxEnd = Math.min(selectedFile.size, currentOffset + maxChunkBytes);
+                    let chunkEnd = Math.min(currentOffset + targetBytes, maxEnd);
 
-                    if (i < partsCount - 1 && chunkEnd < selectedFile.size) {
-                        const windowStart = Math.max(currentOffset, chunkEnd - 2560);
+                    if ((currentMode === 'size' || i < partsCount - 1) && chunkEnd < selectedFile.size) {
+                        let windowStart = Math.max(currentOffset, chunkEnd - 2560);
                         const windowEnd = Math.min(selectedFile.size, chunkEnd + 2560);
-                        const windowBytes = new Uint8Array(await selectedFile.slice(windowStart, windowEnd).arrayBuffer());
+                        let windowBytes = new Uint8Array(await selectedFile.slice(windowStart, windowEnd).arrayBuffer());
+
+                        // 窗口可能从 UTF-8 多字节字符中间开始，跳过续接字节后再解码和换算偏移。
+                        while (windowBytes.length > 0 && (windowBytes[0] & 0xC0) === 0x80) {
+                            windowStart++;
+                            windowBytes = windowBytes.slice(1);
+                        }
+
                         const windowText = decoder.decode(windowBytes);
                         const lastNewlineIdx = windowText.lastIndexOf('\n');
 
@@ -1502,10 +1526,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                         }
                         // 无可用换行点时，至少对齐到字符边界，避免切断多字节字符
                         if (!aligned) {
-                            chunkEnd = alignToCharBoundary(windowBytes, windowStart, chunkEnd);
+                            chunkEnd = alignToCharBoundary(windowBytes, windowStart, chunkEnd, currentOffset);
                         }
                     } else {
-                        chunkEnd = selectedFile.size;
+                        chunkEnd = maxEnd;
                     }
 
                     const chunkBlob = selectedFile.slice(currentOffset, chunkEnd);
@@ -1517,12 +1541,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     splitFiles.push({ blob: chunkBlob });
 
                     // 更新进度
-                    const pct = Math.round(((i + 1) / partsCount) * 100);
+                    const pct = currentMode === 'size'
+                        ? Math.round((currentOffset / selectedFile.size) * 100)
+                        : Math.round(((i + 1) / partsCount) * 100);
                     progressBar.style.width = pct + '%';
                     progressContainer.setAttribute('aria-valuenow', pct);
                     progressText.textContent = `正在分割... ${pct}%`;
 
                     await new Promise(r => setTimeout(r, 0));
+                }
+
+                if (currentOffset < selectedFile.size) {
+                    throw new Error('分割份数超过 5000 份，请增大每份文件大小');
                 }
 
                 // 依实际生成数量决定零填充宽度：9 个 → P1…P9；10 个 → P01…P10；100 个 → P001…P100
@@ -1586,6 +1616,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 // li 不是原生 button，需手动处理键盘下载
                 li.onclick = () => saveBlob(file.blob, file.name);
                 li.addEventListener('keydown', (e) => {
+                    if (e.target !== li) return;
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         saveBlob(file.blob, file.name);
