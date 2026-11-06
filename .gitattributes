@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# 文本文件统一以 LF 入库与检出，避免不同编辑器来回改换行
+* text=auto eol=lf
+
+# 压缩库不做 diff，GitHub 语言统计也忽略它
+*.min.js -diff linguist-vendored

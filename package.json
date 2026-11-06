@@ -1,0 +1,20 @@
+{
+  "name": "txt-splitter",
+  "version": "2.5.0",
+  "description": "纯浏览器端 txt 分割工具：支持按份数或按大小分割，自动识别 UTF-8 / GBK / UTF-16，切点对齐换行与章节，完全离线可用。",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "files": [
+    "index.html"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "npm run build && npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

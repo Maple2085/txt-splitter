@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="纯浏览器端 txt 分割工具：支持按份数或按大小分割，兼容 UTF-8、GBK 与 UTF-16，自动对齐换行与章节，文件不上传，完全离线可用。">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+    <title>文本分割工具 v__VERSION__</title>
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%84%3C/text%3E%3C/svg%3E">
+    <style>
+/* @inject:styles */
+    </style>
+</head>
+
+<body>
+    <main class="container" aria-labelledby="app-title">
+        <header>
+            <h1 id="app-title">文本分割工具 <span class="version">v__VERSION__</span></h1>
+            <p class="description">100% 离线 · 纯本地处理，快速完成您的文本文件分割</p>
+        </header>
+
+        <!-- 上传区域 -->
+        <div class="upload-area" id="upload-area" role="button" tabindex="0" aria-label="点击或拖拽上传 .txt 文本文件"
+            aria-describedby="upload-desc">
+            <div class="upload-icon" aria-hidden="true">📂</div>
+            <p class="upload-title">拖放或点击上传</p>
+            <p id="upload-desc">支持 .txt 文本文件，自动识别 UTF-8 / GBK / UTF-16 编码</p>
+            <!-- 用 hidden 而非 visually-hidden：role="button" 内部不应再嵌可聚焦元素，
+                 否则读屏器会把「上传」和「选择文件」两个控件重复播报 -->
+            <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+        </div>
+
+        <!-- 文件信息 -->
+        <div id="file-info" class="file-info" hidden role="status" aria-live="polite" aria-atomic="true">
+            <div class="file-emoji" aria-hidden="true">📄</div>
+            <div class="file-details">
+                <div class="file-name" id="file-name-display"></div>
+                <div class="file-size-display" id="file-size-display"></div>
+            </div>
+            <button type="button" id="clear-file-btn" class="mini-btn clear-btn" aria-label="移除已选择的文件">
+                <span aria-hidden="true">✕</span> 移除
+            </button>
+        </div>
+
+        <!-- 模式切换 -->
+        <div class="mode-switch" role="tablist" aria-label="分割模式选择">
+            <button type="button" id="mode-parts" class="mode-btn active" role="tab" aria-selected="true"
+                aria-controls="parts-group" tabindex="0">
+                按份数分割
+            </button>
+            <button type="button" id="mode-size" class="mode-btn" role="tab" aria-selected="false"
+                aria-controls="size-group" tabindex="-1">
+                按大小分割
+            </button>
+        </div>
+
+        <!-- 按份数 -->
+        <div class="input-group" id="parts-group" role="tabpanel" aria-labelledby="mode-parts" tabindex="0">
+            <label for="parts-input">分割成多少份？</label>
+            <input type="number" id="parts-input" min="1" max="5000" step="1" inputmode="numeric" value="3"
+                aria-describedby="parts-hint" aria-invalid="false">
+            <div class="input-hint" id="parts-hint" data-default="请输入 1-5000 之间的整数">请输入 1-5000 之间的整数</div>
+        </div>
+
+        <!-- 按大小 -->
+        <div class="input-group" id="size-group" role="tabpanel" aria-labelledby="mode-size" tabindex="0" hidden>
+            <label for="size-input">每份文件最大大小 (MB)</label>
+            <input type="number" id="size-input" min="0.01" step="0.1" inputmode="decimal" value="2"
+                aria-describedby="size-hint" aria-invalid="false">
+            <div class="input-hint" id="size-hint" data-default="最小 0.01 MB">最小 0.01 MB</div>
+        </div>
+
+        <!-- 分割点偏好 -->
+        <fieldset class="option-group" id="break-preference">
+            <legend>优先切分位置</legend>
+            <label class="radio-line"><input type="radio" name="break-mode" value="auto" checked> 智能（优先章节标题）</label>
+            <label class="radio-line"><input type="radio" name="break-mode" value="line"> 仅按换行</label>
+            <label class="radio-line"><input type="radio" name="break-mode" value="strict"> 严格按字节（不调整）</label>
+        </fieldset>
+
+        <!-- 估算 + 按钮 -->
+        <div class="estimate-bar">
+            <button type="button" id="split-btn" class="btn" aria-describedby="estimate">
+                <span aria-hidden="true">⚡</span> 立即开始分割
+            </button>
+            <div id="estimate" class="estimate-text" role="status" aria-live="polite"></div>
+        </div>
+
+        <!-- 取消 -->
+        <button type="button" id="cancel-btn" class="btn cancel-btn" hidden>停止分割</button>
+
+        <!-- 进度条 -->
+        <div id="split-progress" class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+            aria-valuenow="0" aria-label="分割进度" hidden>
+            <div class="progress-track">
+                <div id="split-progress-bar" class="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text">准备中...</div>
+        </div>
+
+        <!-- 结果区域 -->
+        <section class="result-section" id="result-area" aria-label="分割结果" hidden>
+            <div class="result-header">
+                <h2 class="result-title">分割结果预览</h2>
+                <span class="download-tip">单击文件名可单独下载</span>
+            </div>
+
+            <!-- 骨架屏 -->
+            <div id="skeleton-list" class="file-list skeleton-list" aria-hidden="true" hidden>
+                <div class="skeleton-item">
+                    <div class="skeleton skeleton-name"></div>
+                    <div class="skeleton-actions">
+                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton skeleton-size"></div>
+                    </div>
+                </div>
+                <div class="skeleton-item">
+                    <div class="skeleton skeleton-name"></div>
+                    <div class="skeleton-actions">
+                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton skeleton-size"></div>
+                    </div>
+                </div>
+                <div class="skeleton-item">
+                    <div class="skeleton skeleton-name"></div>
+                    <div class="skeleton-actions">
+                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton skeleton-btn"></div>
+                        <div class="skeleton skeleton-size"></div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="file-list" id="file-list" aria-label="分割后的文件列表"></ul>
+
+            <p class="list-note" id="list-note" hidden></p>
+
+            <button type="button" id="zip-btn" class="btn zip-btn" aria-label="将所有分割文件打包下载为 ZIP">
+                <span aria-hidden="true">📦</span> 打包下载全部 (.ZIP)
+            </button>
+            <div id="zip-progress" class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                aria-valuenow="0" aria-label="打包进度" hidden>
+                <div class="progress-track">
+                    <div id="zip-progress-bar" class="progress-bar"></div>
+                </div>
+                <div class="progress-text" id="zip-progress-text">正在打包...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast 容器：aria-live 常驻在此，读屏器才能播报动态插入的内容 -->
+    <div class="toast-container" id="toast-container" role="region" aria-label="通知消息" aria-live="polite"
+        aria-atomic="false"></div>
+
+    <!-- 预览 Dialog -->
+    <dialog id="preview-dialog" class="preview-dialog" aria-labelledby="preview-title">
+        <div class="dialog-header">
+            <h2 class="result-title" id="preview-title">内容预览</h2>
+            <button type="button" id="preview-close-btn" class="dialog-close-btn" aria-label="关闭预览">关闭</button>
+        </div>
+        <div class="dialog-body">
+            <pre id="preview-content" class="preview-content" tabindex="0"></pre>
+        </div>
+    </dialog>
+
+    <!-- zprint:vendor -->
+    <script>
+/* @inject:vendor/jszip */
+    </script>
+    <script>
+/* @inject:vendor/filesaver */
+    </script>
+    <!-- zprint:app -->
+    <script>
+/* @inject:app */
+    </script>
+</body>
+
+</html>
